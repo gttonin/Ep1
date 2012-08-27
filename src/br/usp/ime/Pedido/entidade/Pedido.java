@@ -1,76 +1,62 @@
 package br.usp.ime.Pedido.entidade;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Cascade;
 
-import org.hibernate.annotations.Entity;
-import org.hibernate.annotations.Table;
-
-import br.usp.ime.academicdevoir.entidade.ListaQuestao;
-import br.usp.ime.academicdevoir.entidade.Questao;
-
-import com.google.common.collect.Lists;
 
 @Entity
 public class Pedido {
 	
 	
-	@Id @GeneratedValue
+	@Id @GeneratedValue	
+	@Column(name = "id")
 	private int id;
 	
-	private ArrayList<Item> itens= new ArrayList();
+	private String cliente;
 	
-	@Temporal (TemporalType.DATE)
-	
+	@Temporal (TemporalType.DATE)	
 	private Date date = new Date();
 	
-	private double ValorTotal;
+	@OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY)
+	//@Cascade(CascadeType.ALL)
+	private List<Item> itens;
 	
 	
-	public void CalculaValorTotal () {
-		
-			
-		for (int i=0; i==itens.size(); i++ ) {
-			itens.get(i);
-			
-			Item.getvalorItem();
-			
-			
-			
-			
-			
-			
-			
-			
+	
+	
 
-			
-			
-		}
-		
-		
+	public String getCliente() {
+		return cliente;
 	}
-	
-	
-	@OneToMany (mappedBy = "pedido")
-	private Collection<Cliente> cliente;
-	
-	
-	@OneToMany (mappedBy = "pedido")
-	private Collection<Item> item;
-	
-	
+
+	public void setCliente(String cliente) {
+		this.cliente = cliente;
+	}
+
+	public List<Item> getItens() {
+		return itens;
+	}
+
+	public void setItens(List<Item> itens) {
+		this.itens = itens;
+	}
+
+
 	//private Collection<Item> item= new ArrayList<Item>();
 	
 	
@@ -80,26 +66,18 @@ public class Pedido {
 			item.add(listaItem.getItem());
 		}
 		return item;
-	}*/
-	
-	public Collection<Cliente> getCliente() {
-		return cliente;
-	}
-
-	public void setCliente(Collection<Cliente> cliente) {
-		this.cliente = cliente;
-	}	
-
-	public Collection<Item> getItem() {
-		return item;
-	}
-
-	public void setItem(Collection<Item> item) {
-		this.item = item;
 	}
 	
+	@OneToMany (mappedBy = "pedido")
+	private Collection<Cliente> cliente;
 	
 	
+	@OneToMany (mappedBy = "pedido")
+	private Collection<Item> item;
+	
+	*/
+	
+
 	public Date getDate() {
 		return date;
 	}
@@ -109,17 +87,6 @@ public class Pedido {
 		this.date = date;
 	}
 
-
-	public double getValorTotal() {
-		return ValorTotal;
-	}
-
-
-	public void setValorTotal(double valorTotal) {
-		ValorTotal = valorTotal;
-	}
-
-
 	public int getId() {
 		return id;
 	}
@@ -128,19 +95,26 @@ public class Pedido {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-
-	public ArrayList<Item> getItens() {
-		return itens;
 	
+	public BigDecimal calculaValorTotal() {
+		BigDecimal valorTotal = new BigDecimal(0);
+
+		for (Item i : itens) {
+			valorTotal = valorTotal.add(i.getValorUnitario().multiply(new BigDecimal(i.getQtd())));
+		}
+
+		return valorTotal;
+
 	}
 
-
-	public void setItens(ArrayList<Item> itens) {
-		this.itens = itens;
+	public Pedido() {
+		itens = new ArrayList<Item>();
 	}
+	
 
-    
+	public void addItem(Item i) {
+		itens.add(i);
+	}
  
 }	
 	
